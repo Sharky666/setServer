@@ -2,7 +2,7 @@ const router = require('express').Router();
 const sha = require('sha.js');
 
 const defaultKeyLength = 4;
-const defaultNameLength = 20;
+const maxNameLength = 20;
 const abc = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 const rooms = [];
 
@@ -14,25 +14,25 @@ router.post('/create', (req, res) => {
         status: 'waiting',
         game: 'randNum',
         clients: [
-            {
-                // username: 'dsa',
-                // token: generateToken(abc, 6)
-            }
+            // clients go in here
         ]
     });
     res.send({roomKey})
-    // res.send('done.')
 });
 
 router.post('/join', (req, res) => {
     // TODO: add the client to the lobby
     const clientKey = validateClientLobbyKey(req.headers.key, defaultKeyLength);
-    const clientName = validateClientName(req.headers.name, defaultNameLength)
-    console.log(clientKey)
-    if (clientKey && clientName) {
+    let clientName = null
+    if (clientKey) {
+        clientName = validateClientName(req.headers.name, clientKey, maxNameLength);
+    }
+    else {
+        res.send('incorrect lobby key.')
+    }
+    if (clientName) {
         let clientToken = null;
         rooms.forEach(e => {
-            console.log(e.key)
             if (clientKey === e.key) {
                 clientToken = generateClientToken()
                 e.clients.push({
@@ -44,7 +44,7 @@ router.post('/join', (req, res) => {
         res.send({clientToken});
     }
     else {
-        res.send('incorrect lobby key.');
+        res.send('username already exists.');
     }
 });
 
@@ -97,12 +97,17 @@ function validateClientLobbyKey(clientKey, givenDefaultKeyLength) {
     return rooms.find(e => e.key === clientKey) ? clientKey : false;
 }
 
-function validateClientName(clientName, maxNameLength) {
-    //TODO: check if the same username aleady exsists in the lobby.
+function validateClientName(clientName, lobbyKey, givenMaxNameLength) {
+    // TODO: check if the same username aleady exsists in the lobby.
     if (!clientName) return false;
     clientName = String(clientName);
-    if (clientName.length > maxNameLength) return false
-    return clientName
+    if (clientName.length > givenMaxNameLength) return false;
+    for (let i = 0; i < rooms.length; i++) {
+        if (rooms[i].key === lobbyKey) {
+            return rooms[i].clients.find(e => e.clientName === clientName) ? false : clientName
+        }
+    }
+    return false
 }
 
 function generateClientToken() {
