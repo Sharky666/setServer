@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const sha = require('sha.js');
+const lobbyService = require('../services/lobby.service');
 
 const defaultKeyLength = 4;
 const maxNameLength = 20;
@@ -15,7 +16,8 @@ router.post('/create', (req, res) => {
         game: 'randNum',
         clients: [
             // clients go in here
-        ]
+        ],
+        games: []
     });
     res.send({roomKey})
 });
