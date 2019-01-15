@@ -1,15 +1,17 @@
 class LobbyService {
-    lobbies = []
-    constructor() {}
+
+    constructor() {
+        this.lobbies = []
+    }
 
     // lobby methods
     pushLobby(lobby) {
-        lobbies.push(lobby);
+        this.lobbies.push(lobby);
     }
 
     getLobbyByKey(lobbyKey) {
-        for (let i = 0; i < lobbies.length; i++) {
-            if (lobbyKey === lobbies[i].key) return lobbies[i];
+        for (let i = 0; i < this.lobbies.length; i++) {
+            if (lobbyKey === this.lobbies[i].key) return this.lobbies[i];
         }
     }
 
