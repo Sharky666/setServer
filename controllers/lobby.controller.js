@@ -5,21 +5,20 @@ const lobbyService = require('../services/lobby.service');
 const defaultKeyLength = 4;
 const maxNameLength = 20;
 const abc = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-const rooms = [];
 
 router.post('/create', (req, res) => {
-    // TODO:
-    const roomKey = generateKey(abc, defaultKeyLength)
-    rooms.push({
-        key: roomKey,
+    const lobbyKey = generateKey(abc, defaultKeyLength)
+    const lobby = {
+        key: lobbyKey,
         status: 'waiting',
         game: 'randNum',
         clients: [
             // clients go in here
         ],
         games: []
-    });
-    res.send({roomKey})
+    };
+    lobbyService.pushLobby(lobby)
+    res.send({lobbyKey})
 });
 
 router.post('/join', (req, res) => {
@@ -27,22 +26,19 @@ router.post('/join', (req, res) => {
     const clientKey = validateClientLobbyKey(req.headers.key, defaultKeyLength);
     let clientName = null
     if (clientKey) {
-        clientName = validateClientName(req.headers.name, clientKey, maxNameLength);
+        clientName = validateClientName(req.headers.name, lobbyService.getLobbyByKey(clientKey), maxNameLength);
     }
     else {
         res.send('incorrect lobby key.')
     }
     if (clientName) {
         let clientToken = null;
-        rooms.forEach(e => {
-            if (clientKey === e.key) {
-                clientToken = generateClientToken()
-                e.clients.push({
-                    clientName: clientName,
-                    token: clientToken
-                })
-            }
-        });
+        let lobby = lobbyService.getLobbyByKey(clientKey);
+        clientToken = generateClientToken()
+        lobby.clients.push({
+            clientName: clientName,
+            token: clientToken
+        })
         res.send({clientToken});
     }
     else {
@@ -76,19 +72,14 @@ function generateKey(arr, length) {
     for (let i = 0; i < length; i++) {
         key = key + arr[Math.floor(Math.random() * arr.length)];
     }
-    // if no rooms exist return the key (so we won't check on an empty array)
-    if (rooms.length === 0) return key;
-    // if the key is equal to another room's key, run again.
-    rooms.forEach((e) => {
-        if (key === e.key) {
-            return generateKey(arr, length);
-        }
-    });
+    // if the key is equal to another lobby's key, run again.
+    if (lobbyService.doesLobbyExist(key)) {
+        return generateKey(arr, length);
+    }
     return key;
 }
 
 function validateClientLobbyKey(clientKey, givenDefaultKeyLength) {
-    // TODO: also possibly return the index of the lobby (from the 'rooms' array) to cut times.
     // if clientKey doesn't exist
     if (!clientKey) return false;
     // set the clientKey to a string (so we could check it's length)
@@ -96,20 +87,16 @@ function validateClientLobbyKey(clientKey, givenDefaultKeyLength) {
     clientKey = clientKey.toUpperCase()
     // if the clientkey's length isn't the default key length
     if (clientKey.length !== givenDefaultKeyLength) return false;
-    return rooms.find(e => e.key === clientKey) ? clientKey : false;
+    // if the lobby exists, return the key, otherwise false.
+    return lobbyService.doesLobbyExist(clientKey) ? clientKey : false;
 }
 
-function validateClientName(clientName, lobbyKey, givenMaxNameLength) {
-    // TODO: check if the same username aleady exsists in the lobby.
+function validateClientName(clientName, lobby, givenMaxNameLength) {
     if (!clientName) return false;
     clientName = String(clientName);
     if (clientName.length > givenMaxNameLength) return false;
-    for (let i = 0; i < rooms.length; i++) {
-        if (rooms[i].key === lobbyKey) {
-            return rooms[i].clients.find(e => e.clientName === clientName) ? false : clientName
-        }
-    }
-    return false
+    // if the client name already exists in the lobby, return false, otherwise return the name.
+    return lobby.clients.find(e => e.clientName === clientName) ? false : clientName
 }
 
 function generateClientToken() {

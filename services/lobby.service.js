@@ -11,13 +11,21 @@ class LobbyService {
 
     getLobbyByKey(lobbyKey) {
         for (let i = 0; i < this.lobbies.length; i++) {
-            if (lobbyKey === this.lobbies[i].key) return this.lobbies[i];
+            if (lobbyKey === this.lobbies[i].key) return this.lobbies[i]
         }
+        return false;
+    }
+
+    doesLobbyExist(lobbyKey) {
+        for (let i = 0; i < this.lobbies.length; i++) {
+            if (lobbyKey === this.lobbies[i].key) return true;
+        }
+        return false;
     }
 
     // client methods
     pushClient(lobbyKey, client) {
-        getLobbyByKey(lobbyKey).clients.push(client);
+        this.getLobbyByKey(lobbyKey).clients.push(client);
     }
 }
 
