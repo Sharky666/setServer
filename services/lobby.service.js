@@ -1,5 +1,5 @@
 class LobbyService {
-
+    // TODO: auth these lil shits! ;)
     constructor() {
         this.lobbies = []
     }
@@ -10,6 +10,7 @@ class LobbyService {
     }
 
     getLobbyByKey(lobbyKey) {
+        lobbyKey = String(lobbyKey).toUpperCase();
         for (let i = 0; i < this.lobbies.length; i++) {
             if (lobbyKey === this.lobbies[i].key) return this.lobbies[i]
         }
