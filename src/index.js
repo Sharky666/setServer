@@ -2,7 +2,7 @@ const app = require('express')();
 
 const port = 2000;
 
-app.use(require('./middleware/auth.middleware'));
+app.use(require('./middleware/clientFinder.middleware'));
 app.use('/lobby', require('./controllers/lobby.controller'));
 app.use('/game', require('./controllers/game.controller'));
 
