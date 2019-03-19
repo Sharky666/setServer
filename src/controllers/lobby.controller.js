@@ -84,7 +84,7 @@ router.post('/start', (req, res) => {
         return;
     }
     // make it happen!
-    lobbyService.setLobbyStatus(req.userData.lobby, 'starting');
+    lobbyService.startLobby(req.userData.lobby);
     res.send('ok');
 });
 

@@ -1,3 +1,5 @@
+const gameService = require("./game.service");
+
 class LobbyService {
     // TODO: auth these lil shits! ;)
     constructor() {
@@ -43,7 +45,15 @@ class LobbyService {
     // setters
 
     setLobbyStatus(lobby, status) {
+        //TODO: Make an enum with all the possible lobby statuses
         lobby.status = status;
+    }
+
+    startLobby(lobby) {
+        const gameMode = lobby.gameMode;
+        const gameData = lobby.games[gameMode] = {};
+        gameService.startGame(gameMode, gameData);
+        this.setLobbyStatus(lobby, "started");
     }
 
     setLobbyGameMode(lobbyKey, gameMode) {
@@ -64,7 +74,7 @@ class LobbyService {
             clients: [
                 // clients go in here
             ],
-            games: []
+            games: {}
         };
         this.lobbies.push(lobby);
         return lobbyKey;

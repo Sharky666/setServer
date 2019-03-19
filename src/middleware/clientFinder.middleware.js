@@ -15,6 +15,15 @@ exports = module.exports = (req, res, next) => {
                     lobby,
                     client
                 };
+                req.getGameData = () => {
+                    let gameMode = lobby.gameMode;
+                    if (gameMode) {
+                        return lobby.games[gameMode];
+                    }
+                    else {
+                        return null;
+                    }
+                }
             }
         }
     }
