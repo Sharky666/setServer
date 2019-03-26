@@ -1,3 +1,4 @@
+const LobbyStatus = require("../utils/definitions").LobbyStatus
 const gameService = require("./game.service");
 
 class LobbyService {
@@ -6,7 +7,7 @@ class LobbyService {
         this.defaultKeyLength = 4;
         this.abc = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
         this.lobbies = [];
-        this.allowedGames = ['randomNum'];
+        this.allowedGames = ['randomNumber'];
     }
 
     // lobby methods
@@ -53,7 +54,7 @@ class LobbyService {
         const gameMode = lobby.gameMode;
         const gameData = lobby.games[gameMode] = {};
         gameService.startGame(gameMode, gameData);
-        this.setLobbyStatus(lobby, "started");
+        this.setLobbyStatus(lobby, LobbyStatus.STARTED);
     }
 
     setLobbyGameMode(lobbyKey, gameMode) {
@@ -68,14 +69,14 @@ class LobbyService {
     pushLobby() {
         const lobbyKey = this.generateKey(this.abc, this.defaultKeyLength);
         const lobby = {
-            key: lobbyKey,
-            game: 'randNum',
-            status: 'waiting',
-            clients: [
-                // clients go in here
-            ],
-            games: {}
-        };
+                key: lobbyKey,
+                game: 'randNum',
+                status: LobbyStatus.IDLE,
+                clients: [
+                    // clients go in here
+                ],
+                games: {}
+            };
         this.lobbies.push(lobby);
         return lobbyKey;
     }

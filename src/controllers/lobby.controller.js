@@ -96,6 +96,7 @@ router.get('/status', (req, res) => {
             gameMode: userData.lobby.gameMode
         });
     }
+    
     else {
         res.status(401)
             .json({

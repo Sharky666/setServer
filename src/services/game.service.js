@@ -1,6 +1,6 @@
 class GameService {
     constructor() {
-        initGames();
+        this.initGames();
     }
 
     initGames() {
@@ -16,7 +16,7 @@ class GameService {
         }
     }
 
-    getGameService(gameName){
+    getGameService(gameName) {
         return this.gameServices[gameName];
     }
 }
