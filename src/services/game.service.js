@@ -9,10 +9,11 @@ class GameService {
         }
     }
 
-    startGame(gameName, gameData) {
+    startGame(gameName, gameData, clients) {
+        //TODO: everygame should start with different arguments (for example randomNumber needs to know about his clients~).
         const service = this.getGameService(gameName);
         if (service) {
-            service.start(gameData);
+            service.start(gameData, clients);
         }
     }
 

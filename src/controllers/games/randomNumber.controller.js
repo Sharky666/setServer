@@ -6,12 +6,13 @@ router.get("/", (req, res) => {
 
 });
 
-//randomNumber API:
-
 router.post("/guessNumber", (req, res) => {
     const gameData = req.getGameData();
+    const clientStatus = req.getGameData().status;
+    // TODO: get the client token.
+    const token = req.userData.client.token;
     const clientNumber = req.body.number;
-    RandomNumberService.checkNumber(gameData, clientNumber);
+    res.send(RandomNumberService.checkNumber(gameData, clientNumber, token));
 });
 
 exports = module.exports = router;

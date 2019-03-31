@@ -53,7 +53,7 @@ class LobbyService {
     startLobby(lobby) {
         const gameMode = lobby.gameMode;
         const gameData = lobby.games[gameMode] = {};
-        gameService.startGame(gameMode, gameData);
+        gameService.startGame(gameMode, gameData, lobby.clients);
         this.setLobbyStatus(lobby, LobbyStatus.STARTED);
     }
 
