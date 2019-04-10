@@ -2,6 +2,7 @@ const sha = require('sha.js');
 const router = require('express').Router();
 const lobbyService = require('../services/lobby.service');
 const auth = require('../services/auth.service');
+const handleResults = require("../utils/functions").resultHandling.handleResults;
 
 router.post('/create', (req, res) => {
     const lobbyKey = lobbyService.pushLobby();
@@ -84,8 +85,7 @@ router.post('/start', (req, res) => {
         return;
     }
     // make it happen!
-    lobbyService.startLobby(req.userData.lobby);
-    res.send('ok');
+    handleResults(res, lobbyService.startLobby(req.userData.lobby));
 });
 
 router.get('/status', (req, res) => {

@@ -1,7 +1,6 @@
 const LobbyStatus = require("../utils/definitions").LobbyStatus;
 exports = module.exports = (req, res, next) => {
-    console.log(req.userData.lobby.status)
-    if(req.userData.lobby.status === LobbyStatus.STARTED) {
+    if (req.userData.lobby.status === LobbyStatus.STARTED) {
         next();
     }
     else {

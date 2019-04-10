@@ -1,5 +1,6 @@
-const LobbyStatus = require("../utils/definitions").LobbyStatus
+const Util = require("../utils/definitions");
 const gameService = require("./game.service");
+const resultHandling = require("../utils/functions").resultHandling;
 
 class LobbyService {
     // TODO: auth these lil shits! ;)
@@ -46,15 +47,32 @@ class LobbyService {
     // setters
 
     setLobbyStatus(lobby, status) {
-        //TODO: Make an enum with all the possible lobby statuses
         lobby.status = status;
     }
 
     startLobby(lobby) {
+        const final = resultHandling.getResultStruct();
         const gameMode = lobby.gameMode;
-        const gameData = lobby.games[gameMode] = {};
-        gameService.startGame(gameMode, gameData, lobby.clients);
-        this.setLobbyStatus(lobby, LobbyStatus.STARTED);
+        let gameData = lobby.games[gameMode];
+        if (gameData && gameData.started) {
+            final.error = Util.GameStatus.ALREADY_STARTED;
+        }
+        else {
+            gameData = lobby.games[gameMode] = {};
+            gameService.startGame(gameMode, gameData, lobby.clients);
+            this.setLobbyStatus(lobby, Util.LobbyStatus.STARTED);
+            final.result = Util.Global.OK;
+        }
+        return final
+    }
+
+    endLobbyByKey(lobbyKey) {
+        const lobby = this.lobbies.find(l => {
+            return l.key === lobbyKey;
+        });
+        if (lobby) {
+            this.setLobbyStatus(lobby, Util.LobbyStatus.IDLE);
+        }
     }
 
     setLobbyGameMode(lobbyKey, gameMode) {
@@ -71,7 +89,7 @@ class LobbyService {
         const lobby = {
                 key: lobbyKey,
                 game: 'randNum',
-                status: LobbyStatus.IDLE,
+                status: Util.LobbyStatus.IDLE,
                 clients: [
                     // clients go in here
                 ],

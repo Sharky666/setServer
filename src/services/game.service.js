@@ -1,3 +1,7 @@
+const resultHandling = require("../utils/functions").resultHandling;
+const utils = require("../utils/definitions").GameStatus
+const lobbyService = require("../services/lobby.service");
+
 class GameService {
     constructor() {
         this.initGames();
@@ -10,11 +14,24 @@ class GameService {
     }
 
     startGame(gameName, gameData, clients) {
-        //TODO: everygame should start with different arguments (for example randomNumber needs to know about his clients~).
+        const final = resultHandling.getResultStruct();
         const service = this.getGameService(gameName);
         if (service) {
-            service.start(gameData, clients);
+            return service.start(gameData, clients);
         }
+        final.error = utils.NOT_FOUND;
+        return final
+    }
+
+    endGame(lobbyKey) {
+        lobbyService.endLobbyByKey(lobbyKey);
+    };
+
+    /**
+     * Will be triggered when a game emits and end event
+     */
+    onGameEnd(lobby){
+
     }
 
     getGameService(gameName) {
