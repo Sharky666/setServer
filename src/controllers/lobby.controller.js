@@ -5,8 +5,8 @@ const auth = require('../services/auth.service');
 const handleResults = require("../utils/functions").resultHandling.handleResults;
 
 router.post('/create', (req, res) => {
-    const lobbyKey = lobbyService.pushLobby();
-    res.json({ lobbyKey });
+    const results = lobbyService.pushLobby();
+    handleResults(res, results);
 });
 
 router.post('/join', (req, res) => {

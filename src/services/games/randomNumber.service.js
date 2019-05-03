@@ -1,11 +1,14 @@
 //TODO: add a functionallity that finshes rounds and restarts the "hasGuessed" values
-const Utils = require("../../utils/definitions").randomNumber;
+const Utils = require("../../utils/definitions");
 const resultHandling = require("../../utils/functions").resultHandling;
-const gameService = require("/mnt/a/development/ecmascript/setServer/src/services/game.service.js");
+const { Subject } = require('rxjs');
 
 class RandomNumberService {
+    init() {
+        this.status$ = new Subject();
+    }
+
     start(gameData, clients) {
-        // TODO: rethink the next line.
         gameData.clients = clients;
         gameData.rounds = 0;
         gameData.number = Math.floor(Math.random() * 90) + 1;
@@ -27,20 +30,20 @@ class RandomNumberService {
                         const gameNumber = gameData.number;
                         let won = false;
                         if(number === gameNumber) {
-                            final.result = Utils.Results.CORRECT;
+                            final.result = Utils.randomNumber.Results.CORRECT;
                             won = true;
                         }
                         else if (number > gameNumber) {
-                            final.result = Utils.Results.TOO_BIG;
+                            final.result = Utils.randomNumber.Results.TOO_BIG;
                         }
                         else if (number < gameNumber) {
-                            final.result = Utils.Results.TOO_SMALL;
+                            final.result = Utils.randomNumber.Results.TOO_SMALL;
                         }
                         this.onClientGuessed(gameData, lobbyKey, currentClient, won);
                     }
                     // the client already guessed
                     else {
-                        final.error = Utils.Errors.ALREADY_GUESSED;
+                        final.error = Utils.randomNumber.Errors.ALREADY_GUESSED;
                     }
                 }
             }
@@ -48,11 +51,10 @@ class RandomNumberService {
         }
         return final;
     }
-    
+
     isEveryoneGuessed(gameData) {
         return gameData.guessesLeft === 0;
     }
-    
 
     onClientGuessed(gameData, lobbyKey, client, won) {
         gameData.guessesLeft--;
@@ -63,22 +65,21 @@ class RandomNumberService {
         }
         else if (this.isEveryoneGuessed(gameData)) {
             //next round
-            // this.nextRound(gameData);
-            this.endGame(lobbyKey, client);
+            this.nextRound(gameData);
         }
     }
 
     endGame(lobbyKey) {
-        //TOOD: congradulate the client
-        let utils = Utils;
-        ///mnt/a/development/ecmascript/setServer/src/services/game.service.js
-        let _gameService = gameService;
-        gameService.endGame(lobbyKey);
+        //TOOD: congratulate the client
+        this.status$.next({
+            status: Utils.GameStatus.COMPLETED,
+            lobbyKey: lobbyKey
+        });
     }
 
     nextRound(gameData) {
         gameData.rounds++;
-        gameData.clients.forEach((c, i) =>{
+        gameData.clients.forEach((c, i) => {
             c.hasGuessed = false;
         });
         gameData.guessesLeft = gameData.clients.length;

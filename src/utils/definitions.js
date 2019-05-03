@@ -7,6 +7,7 @@ exports = module.exports = {
         IDLE: "IDLE"
     },
     GameStatus: {
+        COMPLETED: "COMPLETED",
         NOT_FOUND: "Game wasn't found",
         ALREADY_STARTED: "Game already started",
     },

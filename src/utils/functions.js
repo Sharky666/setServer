@@ -11,7 +11,7 @@ exports = module.exports = {
             if (results.result) {
                 response.status(200).json(results);
             }
-            //client did a bad request
+                //client did a bad request
             else {
                 response.status(403).json(results);
             }

@@ -9,6 +9,17 @@ class LobbyService {
         this.abc = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
         this.lobbies = [];
         this.allowedGames = ['randomNumber'];
+        this.initListeners();
+    }
+
+    initListeners() {
+        gameService.gameStatus$.subscribe(this.onGameStatusChange.bind(this));
+    }
+
+    onGameStatusChange(statusEvent) {
+        if (statusEvent.status === Util.GameStatus.COMPLETED) {
+            this.endLobbyByKey(statusEvent.lobbyKey);
+        }
     }
 
     // lobby methods
@@ -50,11 +61,15 @@ class LobbyService {
         lobby.status = status;
     }
 
+    getLobbyStatus(lobby) {
+        return lobby.status;
+    }
+
     startLobby(lobby) {
         const final = resultHandling.getResultStruct();
         const gameMode = lobby.gameMode;
         let gameData = lobby.games[gameMode];
-        if (gameData && gameData.started) {
+        if (this.getLobbyStatus(lobby) === Util.LobbyStatus.STARTED) {
             final.error = Util.GameStatus.ALREADY_STARTED;
         }
         else {
@@ -85,7 +100,9 @@ class LobbyService {
     }
 
     pushLobby() {
+        const final = resultHandling.getResultStruct();
         const lobbyKey = this.generateKey(this.abc, this.defaultKeyLength);
+        final.result = lobbyKey;
         const lobby = {
                 key: lobbyKey,
                 game: 'randNum',
@@ -96,7 +113,7 @@ class LobbyService {
                 games: {}
             };
         this.lobbies.push(lobby);
-        return lobbyKey;
+        return final;
     }
 
     doesLobbyExist(lobbyKey) {

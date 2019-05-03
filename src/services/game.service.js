@@ -1,16 +1,32 @@
 const resultHandling = require("../utils/functions").resultHandling;
-const utils = require("../utils/definitions").GameStatus
-const lobbyService = require("../services/lobby.service");
+const utils = require("../utils/definitions").GameStatus;
+const { Subject } = require('rxjs');
 
 class GameService {
     constructor() {
         this.initGames();
+        this.initObservables();
     }
 
     initGames() {
         this.gameServices = {
-            randomNumber: require("./games/randomNumber.service")
-        }
+            randomNumber: this.initGame("./games/randomNumber.service")
+        };
+    }
+
+    initObservables() {
+        this.gameStatus$ = new Subject();
+    }
+
+    initGame(path) {
+        const game = require(path);
+        game.init();
+        game.status$.subscribe(this.onGameStatusChange.bind(this));
+        return game;
+    }
+
+    onGameStatusChange(statusEvent) {
+        this.gameStatus$.next(statusEvent);
     }
 
     startGame(gameName, gameData, clients) {
@@ -20,12 +36,8 @@ class GameService {
             return service.start(gameData, clients);
         }
         final.error = utils.NOT_FOUND;
-        return final
+        return final;
     }
-
-    endGame(lobbyKey) {
-        lobbyService.endLobbyByKey(lobbyKey);
-    };
 
     /**
      * Will be triggered when a game emits and end event
