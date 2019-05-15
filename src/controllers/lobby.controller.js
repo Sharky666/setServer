@@ -1,16 +1,18 @@
 const sha = require('sha.js');
 const router = require('express').Router();
 const lobbyService = require('../services/lobby.service');
-const auth = require('../services/auth.service');
-const handleResults = require("../utils/functions").resultHandling.handleResults;
+const clientDefinitions = require("../utils/definitions").Client;
+const resultHandling = require("../utils/functions").resultHandling;
+
+const maxNameLength = 20;
 
 router.post('/create', (req, res) => {
     const results = lobbyService.pushLobby();
-    handleResults(res, results);
+    resultHandling.handleResults(res, results);
 });
 
 router.post('/join', (req, res) => {
-    // TODO: the controller should only validate the request, then the service should add it to the database and return the clientToken.
+    const result = resultHandling.getResultStruct();
     const lobby = lobbyService.getLobbyByKey(req.headers.lobbykey);
     let clientKey = null;
     if (lobby) {
@@ -18,22 +20,31 @@ router.post('/join', (req, res) => {
     }
     let clientName = null;
     if (clientKey) {
-        clientName = auth.validateClientName(
-            req.headers.name,
-            lobbyService.getLobbyByKey(clientKey)
-        );
+        // Validating the client's name
+        clientName = String(req.headers.name);
+        if (clientName.length > maxNameLength) {
+            result.error = clientDefinitions.TOO_LONG;
+        };
+        // if the client's name already exists in the lobby
+        lobby.clients.forEach(c => {
+            if (c.name === clientName) {
+                // Name already exsits
+                result.error = clientDefinitions.ALREADY_EXISTS;
+            }
+        });
     }
     else {
-        res.send('incorrect lobby key.');
+        result.error = clientDefinitions.WRONG_KEY;
     }
-    if (clientName) {
+    if (!result.error) {
         // Everything is valid, pushing the client to his lobby.
         const clientToken = generateClientToken();
         lobbyService.pushClient(clientName, clientToken, lobby);
-        res.send({ clientToken });
+        result.result = clientToken;
+        resultHandling.handleResults(res, result);
     }
     else {
-        res.send('username already exists.');
+        resultHandling.handleResults(res, result);
     }
 });
 
@@ -85,7 +96,7 @@ router.post('/start', (req, res) => {
         return;
     }
     // make it happen!
-    handleResults(res, lobbyService.startLobby(req.userData.lobby));
+    resultHandling.handleResults(res, lobbyService.startLobby(req.userData.lobby));
 });
 
 router.get('/status', (req, res) => {

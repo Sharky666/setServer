@@ -2,6 +2,11 @@ exports = module.exports = {
     Global: {
         OK: "Ok"
     },
+    Client: {
+        ALREADY_EXISTS: "Name already exsits",
+        TOO_LONG: "Name is too long",
+        WRONG_KEY: "Incorrect lobby key"
+    },
     LobbyStatus: {
         STARTED: "STARTED",
         IDLE: "IDLE"

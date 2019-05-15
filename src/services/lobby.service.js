@@ -105,7 +105,6 @@ class LobbyService {
         final.result = lobbyKey;
         const lobby = {
                 key: lobbyKey,
-                game: 'randNum',
                 status: Util.LobbyStatus.IDLE,
                 clients: [
                     // clients go in here
