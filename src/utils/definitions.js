@@ -5,7 +5,9 @@ exports = module.exports = {
     Client: {
         ALREADY_EXISTS: "Name already exsits",
         TOO_LONG: "Name is too long",
-        WRONG_KEY: "Incorrect lobby key"
+        WRONG_KEY: "Incorrect lobby key",
+        BAD_NAME: "Bad name",
+        UNAUTHORIZED: "You are unauthorized to perform this request"
     },
     LobbyStatus: {
         STARTED: "STARTED",

@@ -123,11 +123,11 @@ class LobbyService {
     }
     // client methods
 
-    pushClient(name, token, lobby) {
+    pushClient(name, token, lobby, isOwner) {
         lobby.clients.push({
             name,
             token,
-            isOwner: lobby.clients.length === 0
+            isOwner
         });
     }
     // generators

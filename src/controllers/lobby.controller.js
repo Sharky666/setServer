@@ -15,23 +15,35 @@ router.post('/join', (req, res) => {
     const result = resultHandling.getResultStruct();
     const lobby = lobbyService.getLobbyByKey(req.headers.lobbykey);
     let clientKey = null;
+    let clients = [];
+    let isOwner = false;
     if (lobby) {
+        clients = lobby.clients;
         clientKey = lobby.key;
     }
-    let clientName = null;
+    // TODO: does it really need to be declared outside of the if statements?
+    let clientName = null; 
+        // TODO: do we really need to check if the clientKey exists?
     if (clientKey) {
         // Validating the client's name
         clientName = String(req.headers.name);
+        if (!clientName) result.error = clientDefinitions.BAD_NAME;
         if (clientName.length > maxNameLength) {
             result.error = clientDefinitions.TOO_LONG;
         };
-        // if the client's name already exists in the lobby
-        lobby.clients.forEach(c => {
-            if (c.name === clientName) {
-                // Name already exsits
-                result.error = clientDefinitions.ALREADY_EXISTS;
-            }
-        });
+        if (clients.length === 0) {
+            // if the lobby is empty than the client is the owner.
+            isOwner = true;
+        }
+        else {
+            // if the client's name already exists in the lobby
+            clients.forEach(c => {
+                if (c.name === clientName) {
+                    // Name already exsits
+                    result.error = clientDefinitions.ALREADY_EXISTS;
+                }
+            });
+        }
     }
     else {
         result.error = clientDefinitions.WRONG_KEY;
@@ -39,8 +51,11 @@ router.post('/join', (req, res) => {
     if (!result.error) {
         // Everything is valid, pushing the client to his lobby.
         const clientToken = generateClientToken();
-        lobbyService.pushClient(clientName, clientToken, lobby);
-        result.result = clientToken;
+        lobbyService.pushClient(clientName, clientToken, lobby, isOwner);
+        result.result = {
+            clientToken,
+            isOwner
+        };
         resultHandling.handleResults(res, result);
     }
     else {
@@ -49,32 +64,33 @@ router.post('/join', (req, res) => {
 });
 
 router.get('/allowedGames', (req, res) => {
-    res.send(lobbyService.getAllowedGames());
+    const result = resultHandling.getResultStruct();
+    result.result = lobbyService.getAllowedGames()
+    resultHandling.handleResults(res, result);
 });
 
 router.put('/gameMode/:gameName', (req, res) => {
+    const results = resultHandling.getResultStruct();
     const userData = req.userData;
+    let requestedGame = '';
     // checking if client is authorized
-    if (!userData || !userData.client.isOwner) {
-        res.status(401)
-            .json({
-                error: 'you are not authorized.'
-            });
-        return;
+    if (!userData) {
+        results.error = 'you are not authorized';
     }
-    // client is authorized
-    const requestedGame = req.params.gameName;
-    if (!requestedGame || lobbyService.allowedGames.indexOf(requestedGame) === -1) {
-        // Game not found
-        res.status(400)
-            .json({
-                error: 'Wtf is this game'
-            });
-        return;
+    else if (userData.client.isOwner) {
+        // client is authorized
+        requestedGame = req.params.gameName;
+        if (!requestedGame || lobbyService.allowedGames.indexOf(requestedGame) === -1) {
+            results.error = 'unknown game ya bittchh'
+        }
     }
-    lobbyService.setLobbyGameMode(userData.lobby.key, requestedGame);
-    // TODO: Real shit - set the game in the lobby by calling a method from the service
-    res.send('ok');
+
+    if (!results.error) {
+        // TODO: Real shit - set the game in the lobby by calling a method from the service
+        lobbyService.setLobbyGameMode(userData.lobby.key, requestedGame);
+        results.result = 'Ok';
+    }
+    resultHandling.handleResults(res, results)
 });
 
 router.post('/start', (req, res) => {
@@ -96,24 +112,42 @@ router.post('/start', (req, res) => {
         return;
     }
     // make it happen!
-    resultHandling.handleResults(res, lobbyService.startLobby(req.userData.lobby));
+    resultHandling.handleResults(res, byService.startLobby(req.userData.lobby));
 });
 
 router.get('/status', (req, res) => {
+    const results = resultHandling.getResultStruct();
     const userData = req.userData;
     if (userData) {
-        res.json({
+        results.result = {
             status: userData.lobby.status,
             gameMode: userData.lobby.gameMode
-        });
+        }
     }
-    
     else {
-        res.status(401)
-            .json({
-                error: 'you are not authorized.'
-            });
+        results.error = clientDefinitions.UNAUTHORIZED;
     }
+    resultHandling.handleResults(res, results);
+});
+
+router.get('/clients', (req, res) => {
+    const results = resultHandling.getResultStruct();
+    const userData = req.userData;
+    const clientsNames = [];
+    // client is authorized
+    if(userData) {
+        // for each client in the lobby
+        userData.lobby.clients.forEach(client => {
+            // push only the client's name
+            clientsNames.push(client.name);
+         });
+         results.result = clientsNames;
+    }
+    else {
+        // client is not authorized
+        results.error = clientDefinitions.UNAUTHORIZED;
+    }
+    resultHandling.handleResults(res, results);
 });
 
 function generateClientToken() {
