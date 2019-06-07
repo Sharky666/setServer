@@ -9,14 +9,23 @@ exports = module.exports = {
         BAD_NAME: "Bad name",
         UNAUTHORIZED: "You are unauthorized to perform this request"
     },
-    LobbyStatus: {
-        STARTED: "STARTED",
-        IDLE: "IDLE"
+    Lobby: {
+        LobbyStatuses: {
+            STARTED: "STARTED",
+            IDLE: "IDLE",
+        },
+        LobbyErrors: {
+            NO_GAMEMODE_FOUND: "No gamemode found"
+        }
     },
-    GameStatus: {
-        COMPLETED: "COMPLETED",
-        NOT_FOUND: "Game wasn't found",
-        ALREADY_STARTED: "Game already started",
+    Game: {
+        GameStatuses: {
+            COMPLETED: "COMPLETED",
+        },
+        gameErrors: {
+            NOT_FOUND: "Game wasn't found",
+            ALREADY_STARTED: "Game already started"
+        }
     },
     randomNumber: {
         Results: {
@@ -26,6 +35,7 @@ exports = module.exports = {
             TOO_SMALL: "Too small"
         },
         Errors: {
+            INVALID_NUM: "Invalid number",
             ALREADY_GUESSED: "Already guessed",
             ALREADY_STARTED: "Already started",
         }

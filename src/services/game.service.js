@@ -1,5 +1,5 @@
 const resultHandling = require("../utils/functions").resultHandling;
-const utils = require("../utils/definitions").GameStatus;
+const utils = require("../utils/definitions").Game;
 const { Subject } = require('rxjs');
 
 class GameService {
@@ -35,7 +35,7 @@ class GameService {
         if (service) {
             return service.start(gameData, clients);
         }
-        final.error = utils.NOT_FOUND;
+        final.error = utils.gameErrors.NOT_FOUND;
         return final;
     }
 

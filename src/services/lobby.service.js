@@ -17,7 +17,7 @@ class LobbyService {
     }
 
     onGameStatusChange(statusEvent) {
-        if (statusEvent.status === Util.GameStatus.COMPLETED) {
+        if (statusEvent.status === Util.Game.GameStatuses.COMPLETED) {
             this.endLobbyByKey(statusEvent.lobbyKey);
         }
     }
@@ -69,13 +69,13 @@ class LobbyService {
         const final = resultHandling.getResultStruct();
         const gameMode = lobby.gameMode;
         let gameData = lobby.games[gameMode];
-        if (this.getLobbyStatus(lobby) === Util.LobbyStatus.STARTED) {
-            final.error = Util.GameStatus.ALREADY_STARTED;
+        if (this.getLobbyStatus(lobby) === Util.Lobby.LobbyStatuses.STARTED) {
+            final.error = Util.Game.gameErrors.ALREADY_STARTED;
         }
         else {
             gameData = lobby.games[gameMode] = {};
             gameService.startGame(gameMode, gameData, lobby.clients);
-            this.setLobbyStatus(lobby, Util.LobbyStatus.STARTED);
+            this.setLobbyStatus(lobby, Util.Lobby.LobbyStatuses.STARTED);
             final.result = Util.Global.OK;
         }
         return final
@@ -86,7 +86,7 @@ class LobbyService {
             return l.key === lobbyKey;
         });
         if (lobby) {
-            this.setLobbyStatus(lobby, Util.LobbyStatus.IDLE);
+            this.setLobbyStatus(lobby, Util.Lobby.LobbyStatuses.IDLE);
         }
     }
 
@@ -105,7 +105,7 @@ class LobbyService {
         final.result = lobbyKey;
         const lobby = {
                 key: lobbyKey,
-                status: Util.LobbyStatus.IDLE,
+                status: Util.Lobby.LobbyStatuses.IDLE,
                 clients: [
                     // clients go in here
                 ],

@@ -2,6 +2,7 @@ const sha = require('sha.js');
 const router = require('express').Router();
 const lobbyService = require('../services/lobby.service');
 const clientDefinitions = require("../utils/definitions").Client;
+const lobbyDefinitions = require("../utils/definitions").Lobby;
 const resultHandling = require("../utils/functions").resultHandling;
 
 const maxNameLength = 20;
@@ -94,25 +95,25 @@ router.put('/gameMode/:gameName', (req, res) => {
 });
 
 router.post('/start', (req, res) => {
+    const result = resultHandling.getResultStruct();
     const userData = req.userData;
     // checking if client is authorized
     if (!userData || !userData.client.isOwner) {
-        res.status(401)
-            .json({
-                error: 'you are not authorized.'
-            });
-        return;
+        result.error = clientDefinitions.UNAUTHORIZED;
     }
     // VERY BAD!
-    if (!userData.lobby.gameMode) {
-        res.status(400)
-            .json({
-                error: 'this a very bad request you fucking bitch.'
-            });
-        return;
+    else if (!userData.lobby.gameMode) {
+        result.error = lobbyDefinitions.LobbyErrors.NO_GAMEMODE_FOUND;
     }
-    // make it happen!
-    resultHandling.handleResults(res, byService.startLobby(req.userData.lobby));
+    // if error from the client
+    if (result.error) {
+        resultHandling.handleResults(res, result);
+    }
+    // if error from the lobby
+    else {
+        // make it happen!
+        resultHandling.handleResults(res, lobbyService.startLobby(req.userData.lobby));
+    }
 });
 
 router.get('/status', (req, res) => {

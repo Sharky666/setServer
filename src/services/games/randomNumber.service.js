@@ -72,7 +72,7 @@ class RandomNumberService {
     endGame(lobbyKey) {
         //TOOD: congratulate the client
         this.status$.next({
-            status: Utils.GameStatus.COMPLETED,
+            status: Utils.Game.GameStatuses.COMPLETED,
             lobbyKey: lobbyKey
         });
     }
