@@ -24,7 +24,8 @@ exports = module.exports = {
         },
         gameErrors: {
             NOT_FOUND: "Game wasn't found",
-            ALREADY_STARTED: "Game already started"
+            ALREADY_STARTED: "Game already started",
+            DID_NOT_START_YET: "The fucking game didn't even start yet ;)"
         }
     },
     randomNumber: {
