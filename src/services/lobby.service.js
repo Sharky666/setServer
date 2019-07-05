@@ -3,7 +3,6 @@ const gameService = require("./game.service");
 const resultHandling = require("../utils/functions").resultHandling;
 
 class LobbyService {
-    // TODO: auth these lil shits! ;)
     constructor() {
         this.defaultKeyLength = 4;
         this.abc = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];

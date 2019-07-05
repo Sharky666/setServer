@@ -27,12 +27,15 @@ router.post('/join', (req, res) => {
         // TODO: do we really need to check if the clientKey exists?
     if (clientKey) {
         // Validating the client's name
-        clientName = String(req.headers.name);
-        if (!clientName) result.error = clientDefinitions.BAD_NAME;
-        if (clientName.length > maxNameLength) {
+        clientName = req.headers.name;
+        if (!clientName) {
+            result.error = clientDefinitions.BAD_NAME
+            clientName = String(clientName);
+        }
+        else if (clientName.length > maxNameLength) {
             result.error = clientDefinitions.TOO_LONG;
-        };
-        if (clients.length === 0) {
+        }
+        else if (clients.length === 0) {
             // if the lobby is empty than the client is the owner.
             isOwner = true;
         }

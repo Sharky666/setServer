@@ -7,7 +7,7 @@ exports = module.exports = {
         TOO_LONG: "Name is too long",
         WRONG_KEY: "Incorrect lobby key",
         BAD_NAME: "Bad name",
-        UNAUTHORIZED: "You are unauthorized to perform this request"
+        UNAUTHORIZED: "You are unauthorized to perform this request, fucking bitch."
     },
     Lobby: {
         LobbyStatuses: {
@@ -20,7 +20,8 @@ exports = module.exports = {
     },
     Game: {
         GameStatuses: {
-            COMPLETED: "COMPLETED",
+            FINISHING: "Finishing",
+            COMPLETED: "Completed",
         },
         gameErrors: {
             NOT_FOUND: "Game wasn't found",
@@ -29,6 +30,10 @@ exports = module.exports = {
         }
     },
     randomNumber: {
+        Statuses: {
+            Waiting: "waiting",
+            Guessed: "guessed"
+        },
         Results: {
             Ok: "Ok",
             CORRECT: "Correct",

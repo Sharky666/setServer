@@ -13,7 +13,7 @@ class RandomNumberService {
         gameData.rounds = 0;
         gameData.number = Math.floor(Math.random() * 90) + 1;
         gameData.guessesLeft = clients.length;
-        gameData.started = true;
+        gameData.isInGame = true;
     }
 
     checkNumber(gameData, lobbyKey, number, clientToken) {
@@ -32,6 +32,7 @@ class RandomNumberService {
                         if(number === gameNumber) {
                             final.result = Utils.randomNumber.Results.CORRECT;
                             won = true;
+                            gameData.winner = currentClient.name;
                         }
                         else if (number > gameNumber) {
                             final.result = Utils.randomNumber.Results.TOO_BIG;
@@ -61,7 +62,7 @@ class RandomNumberService {
         client.hasGuessed = true;
         if (won) {
             //end game
-            this.endGame(lobbyKey, client);
+            gameData.isInGame = false;
         }
         else if (this.isEveryoneGuessed(gameData)) {
             //next round
@@ -83,6 +84,31 @@ class RandomNumberService {
             c.hasGuessed = false;
         });
         gameData.guessesLeft = gameData.clients.length;
+    }
+
+    restartGame(gameData, clients) {
+        gameData.rounds = 0;
+        gameData.number = Math.floor(Math.random() * 90) + 1;
+        gameData.guessesLeft = clients.length;
+        gameData.isInGame = true;
+        clients.forEach(c => {
+            c.hasGuessed = false;
+        });
+    }
+
+    getClientGameStatus(gameData, token) {
+        const status = {
+            isInGame: gameData.isInGame
+        };
+        gameData.clients.forEach(c => {
+            // if found the client
+            if (c.token === token) {
+                status.isGuessed = c.hasGuessed;
+            }
+            else {
+            }
+        });
+        return status;
     }
 }
 
