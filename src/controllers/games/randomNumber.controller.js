@@ -8,7 +8,6 @@ router.post("/guessNumber", (req, res) => {
     const result = resultHandling.getResultStruct();
     const gameData = req.getGameData();
     const token = req.userData.client.token;
-    const lobbyKey = req.userData.lobby.key;
     // trying to parse as int, maybe the client gave us a string
     const clientNumber = parseInt(req.body.number, 10);
     // if clientNumber is NaN
@@ -21,7 +20,7 @@ router.post("/guessNumber", (req, res) => {
         resultHandling.handleResults(res, result);
         return;
     }
-    resultHandling.handleResults(res, RandomNumberService.checkNumber(gameData, lobbyKey, clientNumber, token));
+    resultHandling.handleResults(res, RandomNumberService.checkNumber(gameData, clientNumber, token));
 });
 
 // status per client

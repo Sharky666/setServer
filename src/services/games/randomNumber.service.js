@@ -1,4 +1,3 @@
-//TODO: add a functionallity that finshes rounds and restarts the "hasGuessed" values
 const Utils = require("../../utils/definitions");
 const resultHandling = require("../../utils/functions").resultHandling;
 const { Subject } = require('rxjs');
@@ -16,7 +15,7 @@ class RandomNumberService {
         gameData.isInGame = true;
     }
 
-    checkNumber(gameData, lobbyKey, number, clientToken) {
+    checkNumber(gameData, number, clientToken) {
         const clients = gameData.clients;
         const final = resultHandling.getResultStruct();
         if (gameData) {
@@ -40,7 +39,7 @@ class RandomNumberService {
                         else if (number < gameNumber) {
                             final.result = Utils.randomNumber.Results.TOO_SMALL;
                         }
-                        this.onClientGuessed(gameData, lobbyKey, currentClient, won);
+                        this.onClientGuessed(gameData, currentClient, won);
                     }
                     // the client already guessed
                     else {
@@ -57,7 +56,7 @@ class RandomNumberService {
         return gameData.guessesLeft === 0;
     }
 
-    onClientGuessed(gameData, lobbyKey, client, won) {
+    onClientGuessed(gameData, client, won) {
         gameData.guessesLeft--;
         client.hasGuessed = true;
         if (won) {
